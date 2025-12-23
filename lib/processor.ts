@@ -28,6 +28,8 @@ export function processJob(jobId: string) {
         "--progress"
     ];
 
+    if (cookieFile) args.push("--cookies", cookieFile);
+
     // Add Referer only for TikTok
     if (isTikTok) {
         args.push("--referer", "https://www.tiktok.com/");
