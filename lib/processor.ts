@@ -12,40 +12,43 @@ export function processJob(jobId: string) {
     updateJob(jobId, { status: "running", progress: 0 });
     console.log(`[Processor] Starting job ${jobId} for URL: ${job.url}`);
 
-    // Robust yt-dlp arguments based on action
-    let args: string[] = [];
+    // Determine anti-bot flags based on domain
+    const isTikTok = job.url.includes("tiktok.com");
+
+    const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
+
+    // Base arguments
+    let args: string[] = [
+        "--no-playlist",
+        "--user-agent", userAgent,
+        "--newline",
+        "-P", OUTPUT_DIR,
+        "-o", "%(id)s.%(ext)s",
+        "--print", "after_move:filepath",
+        "--progress"
+    ];
+
+    // Add Referer only for TikTok
+    if (isTikTok) {
+        args.push("--referer", "https://www.tiktok.com/");
+    }
 
     if (job.action === "audio" || job.action === "transcribe" || job.action === "summarize") {
-        args = [
+        args.push(
             "--extract-audio",
             "--audio-format", "mp3",
-            "--audio-quality", "0", // Best quality
-            "--no-playlist",
-            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            "--referer", "https://www.tiktok.com/",
-            "-P", OUTPUT_DIR,
-            "-o", "%(id)s.%(ext)s",
-            "--newline",
-            "--print", "after_move:filepath",
-            "--progress",
-            job.url
-        ];
+            "--audio-quality", "0"
+        );
     } else {
-        // Default to video download
-        args = [
-            "--no-playlist",
-            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            "--referer", "https://www.tiktok.com/",
+        // Video download
+        args.push(
             "--merge-output-format", "mp4",
-            "--format", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-            "-P", OUTPUT_DIR,
-            "-o", "%(id)s.%(ext)s",
-            "--newline",
-            "--print", "after_move:filepath",
-            "--progress",
-            job.url
-        ];
+            "--format", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+        );
     }
+
+    // Append URL last
+    args.push(job.url);
 
     const ytDlp = spawn("yt-dlp", args);
 
