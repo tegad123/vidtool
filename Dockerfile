@@ -1,5 +1,5 @@
-# Base image with Node 18
-FROM node:18-bullseye-slim
+# Base image with Node 18 (Bookworm has Python 3.11+)
+FROM node:18-bookworm-slim
 
 # Install system dependencies (FFmpeg, Python, etc.)
 RUN apt-get update && apt-get install -y \
