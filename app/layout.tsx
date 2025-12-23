@@ -1,30 +1,41 @@
+```typescript
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
+import Script from "next/script";
+import { Inter } from "next/font/google";
 
-import "styles/globals.css";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Next JS SaaS Starter Template",
-  description: "Next JS SaaS Starter Template",
+  title: "VideoTool - Free Video Global Downloader & Helper",
+  description: "Download videos, extract audio, transcribe, summarize, and add subtitles locally.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="bg-white dark:bg-black min-h-screen">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {children}
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="flex flex-col min-h-screen">
+            <main className="flex-grow">
+              {children}
+            </main>
+            <footer className="py-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-black text-center text-sm text-gray-500">
+              <div className="flex justify-center gap-6 mb-2">
+                <a href="/privacy" className="hover:text-gray-900 dark:hover:text-gray-300">Privacy</a>
+                <a href="/terms" className="hover:text-gray-900 dark:hover:text-gray-300">Terms</a>
+                <a href="/contact" className="hover:text-gray-900 dark:hover:text-gray-300">Contact</a>
+              </div>
+              <p className="text-xs text-gray-400">
+                This site uses ads to support free access. Not affiliated with any social platform.
+              </p>
+            </footer>
+          </div>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+```
