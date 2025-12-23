@@ -93,6 +93,11 @@ export function processJob(jobId: string) {
     ytDlp.on("close", (code) => {
         console.log(`[Processor] yt-dlp exited with code ${code}`);
 
+        // Cleanup cookies
+        if (cookieFile && fs.existsSync(cookieFile)) {
+            try { fs.unlinkSync(cookieFile); } catch (e) { /* ignore */ }
+        }
+
         if (code === 0 && finalFilePath && fs.existsSync(finalFilePath)) {
             const stat = fs.statSync(finalFilePath);
             // Lower min size for audio
