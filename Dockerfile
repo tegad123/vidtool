@@ -19,8 +19,9 @@ RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o 
 # Install Whisper (OpenAI)
 # Note: This pulls in PyTorch which makes the image large.
 # We upgrade pip first to avoid issues.
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir openai-whisper
+# --break-system-packages required for Debian Bookworm (PEP 668)
+RUN pip3 install --no-cache-dir --break-system-packages --upgrade pip && \
+    pip3 install --no-cache-dir --break-system-packages openai-whisper
 
 # Set working directory
 WORKDIR /app
