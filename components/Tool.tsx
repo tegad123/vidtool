@@ -41,7 +41,6 @@ const actionConfig: { action: ActionType; label: string; icon: string }[] = [
     { action: "download", label: "Download Video", icon: "⬇️" },
     { action: "audio", label: "Extract Audio", icon: "🎵" },
     { action: "transcribe", label: "Transcribe", icon: "📝" },
-    { action: "transcribe", label: "Transcribe", icon: "�" },
     { action: "summarize", label: "Summarize", icon: "📋" },
 ];
 
