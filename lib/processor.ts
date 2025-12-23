@@ -20,13 +20,24 @@ export function processJob(jobId: string) {
     // Base arguments
     let args: string[] = [
         "--no-playlist",
-        "--user-agent", userAgent,
+        "--force-ipv4",
         "--newline",
+        "--user-agent", userAgent,
         "-P", OUTPUT_DIR,
         "-o", "%(id)s.%(ext)s",
         "--print", "after_move:filepath",
         "--progress"
     ];
+
+    // Write cookies if provided
+    let cookieFile: string | null = null;
+    if (process.env.COOKIES_TXT) {
+        if (!fs.existsSync(OUTPUT_DIR)) {
+            try { fs.mkdirSync(OUTPUT_DIR, { recursive: true }); } catch (e) { /* ignore */ }
+        }
+        cookieFile = path.join(OUTPUT_DIR, `cookies-${jobId}.txt`);
+        try { fs.writeFileSync(cookieFile, process.env.COOKIES_TXT); } catch (e) { /* ignore */ }
+    }
 
     if (cookieFile) args.push("--cookies", cookieFile);
 
