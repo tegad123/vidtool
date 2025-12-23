@@ -5,10 +5,10 @@ import { useEffect, useRef } from "react";
 interface AdSlotProps {
     slotId: string;
     /** 'auto' for responsive, 'rectangle' for fixed box, 'vertical' etc */
-    format?. : "auto" | "rectangle" | "vertical" | "horizontal";
-minHeight ?: number;
-enabled ?: boolean;
-className ?: string;
+    format?: "auto" | "rectangle" | "vertical" | "horizontal";
+    minHeight?: number;
+    enabled?: boolean;
+    className?: string;
 }
 
 export default function AdSlot({
