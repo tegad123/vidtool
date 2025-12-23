@@ -21,6 +21,8 @@ export function processJob(jobId: string) {
             "--audio-format", "mp3",
             "--audio-quality", "0", // Best quality
             "--no-playlist",
+            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "--referer", "https://www.tiktok.com/",
             "-P", OUTPUT_DIR,
             "-o", "%(id)s.%(ext)s",
             "--newline",
@@ -32,6 +34,8 @@ export function processJob(jobId: string) {
         // Default to video download
         args = [
             "--no-playlist",
+            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "--referer", "https://www.tiktok.com/",
             "--merge-output-format", "mp4",
             "--format", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
             "-P", OUTPUT_DIR,
