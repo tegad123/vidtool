@@ -181,36 +181,54 @@ function runWhisper(jobId: string, audioPath: string, baseId: string, alsoSummar
     // 1. In PATH (ideal)
     // 2. In ~/.local/bin/whisper (pipx default)
 
-    // Command: whisper <audioPath> --model base --output_format txt,srt,json --output_dir outputs/
-    // We'll trust PATH first, but if that fails, we might need absolute path.
-    // Actually, `spawn` doesn't support fallback easily without checking.
-    // Let's assume standard `whisper` first. If user has issue, we encourage PATH fix.
-    // BUT since we see it's in ~/.local/bin, let's try to use that if valid.
+    // Command: whisper <audioPath> --model tiny --output_format txt,srt,json --output_dir outputs/
+    // Using 'tiny' model for better performance on limited resources
 
     const pipxPath = path.join(process.env.HOME || "", ".local/bin/whisper");
     const command = fs.existsSync(pipxPath) ? pipxPath : "whisper";
 
+    // Use 'tiny' model for faster processing and lower memory usage on cloud
     const args = [
         audioPath,
-        "--model", "base",
+        "--model", "tiny",
         "--output_format", "all",
         "--output_dir", OUTPUT_DIR,
-        "--verbose", "False"
+        "--verbose", "True"  // Enable verbose for better debugging
     ];
+
+    console.log(`[Whisper] Running: ${command} ${args.join(" ")}`);
 
     const whisper = spawn(command, args);
 
-    whisper.stdout.on("data", (data) => console.log(`[Whisper] ${data}`));
-    whisper.stderr.on("data", (data) => console.log(`[Whisper stderr] ${data}`));
+    // Set a timeout of 5 minutes for transcription
+    const WHISPER_TIMEOUT_MS = 5 * 60 * 1000;
+    let killed = false;
+    const timeoutHandle = setTimeout(() => {
+        console.error(`[Whisper] Timeout after ${WHISPER_TIMEOUT_MS / 1000}s - killing process`);
+        killed = true;
+        whisper.kill("SIGKILL");
+    }, WHISPER_TIMEOUT_MS);
+
+    whisper.stdout.on("data", (data) => console.log(`[Whisper stdout] ${data.toString().trim()}`));
+    whisper.stderr.on("data", (data) => console.log(`[Whisper stderr] ${data.toString().trim()}`));
 
     whisper.on("error", (err) => {
+        clearTimeout(timeoutHandle);
         console.error("[Transcribe Job] Whisper not found or failed to spawn", err);
-        updateJob(jobId, { status: "failed", error: "Transcription unavailable locally. Install whisper command." });
+        updateJob(jobId, { status: "failed", error: "Transcription unavailable. Whisper command not found." });
     });
 
     whisper.on("close", (code) => {
+        clearTimeout(timeoutHandle);
+
+        if (killed) {
+            updateJob(jobId, { status: "failed", error: "Transcription timed out. The audio may be too long." });
+            return;
+        }
+
         if (code !== 0) {
-            updateJob(jobId, { status: "failed", error: "Transcription process failed." });
+            console.error(`[Whisper] Exited with code ${code}`);
+            updateJob(jobId, { status: "failed", error: `Transcription process failed (exit code ${code}).` });
             return;
         }
 
