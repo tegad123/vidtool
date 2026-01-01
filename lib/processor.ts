@@ -33,14 +33,25 @@ export function processJob(jobId: string) {
     // Write cookies if provided
     let cookieFile: string | null = null;
     if (process.env.COOKIES_TXT) {
+        console.log(`[Processor] COOKIES_TXT detected, length: ${process.env.COOKIES_TXT.length} chars`);
         if (!fs.existsSync(OUTPUT_DIR)) {
             try { fs.mkdirSync(OUTPUT_DIR, { recursive: true }); } catch (e) { /* ignore */ }
         }
         cookieFile = path.join(OUTPUT_DIR, `cookies-${jobId}.txt`);
-        try { fs.writeFileSync(cookieFile, process.env.COOKIES_TXT); } catch (e) { /* ignore */ }
+        try {
+            fs.writeFileSync(cookieFile, process.env.COOKIES_TXT);
+            console.log(`[Processor] Cookie file written to: ${cookieFile}`);
+        } catch (e) {
+            console.error(`[Processor] Failed to write cookie file:`, e);
+        }
+    } else {
+        console.log(`[Processor] No COOKIES_TXT environment variable found`);
     }
 
-    if (cookieFile) args.push("--cookies", cookieFile);
+    if (cookieFile) {
+        args.push("--cookies", cookieFile);
+        console.log(`[Processor] Using cookies file: ${cookieFile}`);
+    }
 
     // Add Referer only for TikTok
     if (isTikTok) {
