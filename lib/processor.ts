@@ -22,7 +22,7 @@ export function processJob(jobId: string) {
         "--no-playlist",
         "--force-ipv4",
         "--newline",
-        "--js-runtimes", "nodejs",  // Required for YouTube extraction
+        "--js-runtimes", "node",  // Required for YouTube extraction
         "--user-agent", userAgent,
         "-P", OUTPUT_DIR,
         "-o", "%(id)s.%(ext)s",
